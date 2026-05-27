@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 📻 Arabic Radio | راديو العرب
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Saeed-Badr/Arabic-Radio/releases)
@@ -148,3 +149,7 @@ GitHub: Saeed-Badr
 ⭐ إذا أعجبك التطبيق، لا تنسى وضع نجمة (Star) على المستودع!
 ⭐ If you like the app, don't forget to star the repository!
 
+=======
+# Arabic-Radio
+Arabic Radio
+>>>>>>> 789a63741302ea48cb2a99b0c9a2dfc8f2a866b7
