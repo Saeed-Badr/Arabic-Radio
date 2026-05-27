@@ -1,0 +1,64 @@
+{
+  "name": "Arabic-Radio-app",
+  "version": "1.0.0",
+  "description": "Radio App for Windows",
+  "main": "main.js",
+  "license": "MIT",
+  "author": "Saeed Badr",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^41.0.2",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3",
+    "hls.js": "^1.6.15"
+  },
+  "build": {
+    "appId": "com.saeed.arabicradio",
+    "productName": "Arabic Radio",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "src/assets/Arabic Radio.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Arabic Radio",
+      "installerIcon": "src/assets/Arabic Radio.ico",
+      "uninstallerIcon": "src/assets/Arabic Radio.ico"
+    },
+    "extraResources": [
+      {
+        "from": "src/assets",
+        "to": "assets"
+      }
+    ],
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "!node_modules/.cache",
+      "!src/assets/backup"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Saeed-Badr",
+        "repo": "Arabic-Radio"
+      }
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+# تجاهل مجلد node_modules
+node_modules/
+
+# تجاهل مجلد dist (ملفات exe والـ build)
+dist/
+
+# تجاهل ملفات exe و dll
+*.exe
+*.dll
+
+# تجاهل ملفات النظام المؤقتة
+*.log
+*.tmp
+
+# تجاهل ملفات التكوين المؤقتة
+*.swp
+*.swo
+
+# تجاهل ملفات التوزيع الخاصة بـ Electron
+electron-builder.yml
+builder-debug.yml
+builder-effective-config.yaml
+latest.yml
+app-update.yml
+
+# تجاهل ملفات النظام (ويندوز وماك)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# تجاهل ملفات التغطية والاختبار
+coverage/
+*.lcov
+
+# تجاهل ملفات بيئة التطوير
+.vscode/
+.idea/

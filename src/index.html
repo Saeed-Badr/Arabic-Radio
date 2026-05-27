@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Arabic Radio | إذاعتك المفضلة عندنا</title>
+    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    </style>
+</head>
+<body>
+
+<div id="splashScreen" class="splash-screen">
+    <div class="splash-content">
+        <img src="./assets/001.png" alt="Logo" class="splash-logo">
+        <div class="splash-text">
+            <h2>Arabic Radio</h2>
+            <p data-i18n="loading">جاري تحميل المحطات...</p>
+        </div>
+    </div>
+</div>
+
+<div class="menu-bar">
+    <!-- قائمة ملف -->
+    <div class="menu-item" accesskey="f">ملف
+        <div class="dropdown-menu">
+            <div id="menuOpenURL" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-link"></i> فتح رابط البث <span class="menu-shortcut">Ctrl+O</span></div>
+            <div id="menuAddStation" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-plus-circle"></i> إضافة محطة جديدة <span class="menu-shortcut">Ctrl+N</span></div>
+            <div class="dropdown-divider"></div>
+            <div id="menuImportStations" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-file-import"></i> استيراد المحطات <span class="menu-shortcut">Ctrl+I</span></div>
+            <div id="menuExportStations" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-file-export"></i> تصدير المحطات <span class="menu-shortcut">Ctrl+Shift+X</span></div>
+            <div class="dropdown-divider"></div>
+            <div id="menuExit" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-sign-out-alt"></i> خروج <span class="menu-shortcut">Ctrl+Q</span></div>
+        </div>
+    </div>
+    <!-- قائمة تشغيل -->
+    <div class="menu-item" accesskey="p">تشغيل
+        <div class="dropdown-menu">
+            <div id="menuResume" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-play"></i> استئناف <span class="menu-shortcut">Ctrl+P</span></div>
+            <div class="dropdown-item has-submenu" tabindex="0">
+                <i class="fas fa-clock"></i> إيقاف بعد مدة
+                <div class="submenu-horizontal">
+                    <div class="submenu-item" data-minutes="20" tabindex="0">20 دقيقة <span class="menu-shortcut">Ctrl+Shift+1</span></div>
+                    <div class="submenu-item" data-minutes="40" tabindex="0">40 دقيقة <span class="menu-shortcut">Ctrl+Shift+2</span></div>
+                    <div class="submenu-item" data-minutes="60" tabindex="0">60 دقيقة <span class="menu-shortcut">Ctrl+Shift+3</span></div>
+                    <div class="submenu-item" data-minutes="80" tabindex="0">80 دقيقة <span class="menu-shortcut">Ctrl+Shift+4</span></div>
+                </div>
+            </div>
+            <div id="menuStop" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-stop"></i> إيقاف الآن <span class="menu-shortcut">Ctrl+S</span></div>
+            <div class="dropdown-divider"></div>
+            <div id="menuShuffle" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-random"></i> تشغيل عشوائي <span class="menu-shortcut">Ctrl+R</span></div>
+        </div>
+    </div>
+    <!-- قائمة صوت -->
+    <div class="menu-item" accesskey="s">صوت
+        <div class="dropdown-menu">
+            <div id="menuCompressor" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-compress-alt"></i> ضاغط <span class="menu-shortcut">Ctrl+J</span></div>
+            <div class="dropdown-item has-submenu" tabindex="0">
+                <i class="fas fa-headphones"></i> فصل ستيريو
+                <div class="submenu-horizontal">
+                    <div class="submenu-item" data-stereo="left" tabindex="0">يسار <span class="menu-shortcut">Shift+L</span></div>
+                    <div class="submenu-item" data-stereo="right" tabindex="0">يمين <span class="menu-shortcut">Shift+E</span></div>
+                    <div class="submenu-item" data-stereo="center" tabindex="0">وسط <span class="menu-shortcut">Shift+C</span></div>
+                </div>
+            </div>
+            <div class="dropdown-item has-submenu" tabindex="0">
+                <i class="fas fa-tv"></i> جهاز إخراج
+                <div class="submenu-horizontal" id="outputDeviceSubmenu">
+                    <div class="submenu-item" data-device="default" tabindex="0">افتراضي <span class="menu-shortcut">Shift+0</span></div>
+                    <div class="submenu-item" data-device="select" tabindex="0">اختيار جهاز... <span class="menu-shortcut">Shift+9</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- قائمة عرض -->
+    <div class="menu-item" accesskey="v">عرض
+        <div class="dropdown-menu">
+            <div id="menuViewStations" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-broadcast-tower"></i> المحطات <span class="menu-shortcut">Ctrl+1</span></div>
+            <div id="menuHistory" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-history"></i> سجل <span class="menu-shortcut">Ctrl+5</span></div>
+            <div class="dropdown-item has-submenu">
+                <i class="fas fa-cog"></i> الإعدادات
+                <div class="submenu-horizontal settings-submenu">
+                    <!-- تشغيل تلقائي للمحطة الأخيرة -->
+                    <div class="submenu-item has-submenu-settings" data-setting="autoResume">
+                        تشغيل تلقائى للمحطة الأخيرة
+                        <div class="submenu-vertical">
+                            <div class="submenu-value" data-value="true">تشغيل <span class="menu-shortcut">Ctrl+Shift+A</span></div>
+                            <div class="submenu-value" data-value="false">تعطيل <span class="menu-shortcut">Ctrl+Shift+D</span></div>
+                        </div>
+                    </div>
+                    <!-- تأخير التشغيل التلقائي -->
+                    <div class="submenu-item has-submenu-settings" data-setting="autoResumeDelay">
+                        تأخير التشغيل التلقائي
+                        <div class="submenu-vertical">
+                            <div class="submenu-value" data-value="0.5">0.5 ث <span class="menu-shortcut">Ctrl+Shift+5</span></div>
+                            <div class="submenu-value" data-value="1">1 ث <span class="menu-shortcut">Ctrl+Shift+6</span></div>
+                            <div class="submenu-value" data-value="2">2 ث <span class="menu-shortcut">Ctrl+Shift+7</span></div>
+                            <div class="submenu-value" data-value="3">3 ث <span class="menu-shortcut">Ctrl+Shift+8</span></div>
+                        </div>
+                    </div>
+                    <!-- حجم الخط -->
+                    <div class="submenu-item has-submenu-settings" data-setting="fontSize">
+                        حجم الخط
+                        <div class="submenu-vertical">
+                            <div class="submenu-value" data-value="large">كبير <span class="menu-shortcut">Ctrl+Shift+F12</span></div>
+                            <div class="submenu-value" data-value="medium">متوسط <span class="menu-shortcut">Ctrl+Shift+F11</span></div>
+                            <div class="submenu-value" data-value="small">صغير <span class="menu-shortcut">Ctrl+Shift+F10</span></div>
+                        </div>
+                    </div>
+                    <!-- اللغة -->
+                    <div class="submenu-item has-submenu-settings" data-setting="language">
+                        اللغة
+                        <div class="submenu-vertical">
+                            <div class="submenu-value" data-value="ar">العربية <span class="menu-shortcut">Shift+A</span></div>
+                            <div class="submenu-value" data-value="en">الإنجليزية <span class="menu-shortcut">Shift+B</span></div>
+                        </div>
+                    </div>
+                    <!-- مسح السجل كل 7 أيام -->
+                    <div class="submenu-item has-submenu-settings" data-setting="autoClearHistory">
+                        مسح السجل كل 7 أيام
+                        <div class="submenu-vertical">
+                            <div class="submenu-value" data-value="true">تشغيل <span class="menu-shortcut">Ctrl+Shift+H</span></div>
+                            <div class="submenu-value" data-value="false">تعطيل <span class="menu-shortcut">Ctrl+Shift+J</span></div>
+                        </div>
+                    </div>
+                    <!-- مؤثرات الصوت البصرية -->
+                    <div class="submenu-item has-submenu-settings" data-setting="visualizer">
+                        مؤثرات الصوت البصرية
+                        <div class="submenu-vertical">
+                            <div class="submenu-value" data-value="true">تشغيل <span class="menu-shortcut">Ctrl+Shift+V</span></div>
+                            <div class="submenu-value" data-value="false">تعطيل <span class="menu-shortcut">Ctrl+Shift+B</span></div>
+                        </div>
+                    </div>
+                    <!-- أيقونة التسجيل -->
+                    <div class="submenu-item has-submenu-settings" data-setting="recordIcon">
+                        أيقونة التسجيل
+                        <div class="submenu-vertical">
+                            <div class="submenu-value" data-value="true">عرض <span class="menu-shortcut">Ctrl+Shift+R</span></div>
+                            <div class="submenu-value" data-value="false">إخفاء <span class="menu-shortcut">Ctrl+Shift+U</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="menuAlwaysOnTop" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-thumbtack"></i> دائماً في المقدمة <span class="menu-shortcut">Ctrl+Shift+T</span></div>
+<div class="dropdown-item has-submenu">
+    <i class="fas fa-palette"></i> المظهر
+    <div class="submenu-horizontal">
+        <div class="submenu-item" data-theme="default">الافتراضي <span class="menu-shortcut">Ctrl+Shift+F1</span></div>
+        <div class="submenu-item" data-theme="dark">داكن <span class="menu-shortcut">Ctrl+Shift+F2</span></div>
+        <div class="submenu-item" data-theme="light">فاتح <span class="menu-shortcut">Ctrl+Shift+F3</span></div>
+        <!-- ✅ أضف هذا السطر -->
+        <div class="submenu-item" data-theme="red">
+    <span data-i18n="theme_red">أحمر</span>
+    <span class="menu-shortcut">Ctrl+Shift+F4</span>
+</div>
+    </div>
+</div>
+            <div id="menuCloseTab" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-times-circle"></i> إغلاق التبويب الحالي <span class="menu-shortcut">Ctrl+W</span></div>
+        </div>
+    </div>
+    <!-- قائمة مساعدة -->
+    <div class="menu-item" accesskey="h">مساعدة
+        <div class="dropdown-menu">
+            <div id="menuKeyboardShortcuts" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-keyboard"></i> 📖 اختصارات لوحة المفاتيح <span class="menu-shortcut">Ctrl+Shift+K</span></div>
+            <div id="menuDebug" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-bug"></i> تصحيح الأخطاء <span class="menu-shortcut">Ctrl+Shift+?</span></div>
+            <div id="menuFeedback" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-envelope"></i> إرسال ملاحظات <span class="menu-shortcut">Ctrl+Shift+F</span></div>
+            <div class="dropdown-divider"></div>
+                        <div id="menuAboutHelp" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-info-circle"></i> حول <span class="menu-shortcut">Ctrl+Shift+I</span></div>
+            <div id="menuLicense" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-file-contract"></i> الترخيص <span class="menu-shortcut">Ctrl+Shift+Y</span></div>
+            <div id="menuOpenSource" class="dropdown-item has-shortcut" tabindex="0"><i class="fab fa-github"></i> مفتوح المصدر <span class="menu-shortcut">Ctrl+Shift+G</span></div>
+            <div id="menuReleaseNotes" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-scroll"></i> ملاحظات الإصدار <span class="menu-shortcut">Ctrl+Shift+N</span></div>
+            <div class="dropdown-divider"></div>
+<div id="menuCheckForUpdates" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-sync-alt"></i> البحث عن تحديثات <span class="menu-shortcut">Ctrl+Shift+U</span></div>
+            <div id="menuHello" class="dropdown-item has-shortcut" tabindex="0"><i class="fas fa-smile-wink"></i> مرحباً <span class="menu-shortcut">Shift+H</span></div>
+        </div>
+    </div>
+</div>
+
+<header class="main-header">
+    <div class="logo-area">
+        <img src="./assets/0001.ico" alt="Logo" class="logo-img">
+        <h1>Arabic Radio</h1>
+    </div>
+    <div class="search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" placeholder="ابحث عن محطة إذاعة، أو مدينة...">
+    </div>
+    <div id="timerDisplay" class="timer-display"></div>
+    <div id="playerStatus" class="player-status"></div>
+    <div class="header-actions">
+        <button id="favoritesNavBtn" class="icon-btn" title="المفضلة"><i class="fas fa-heart" style="color:red;"></i></button>
+        <button id="stationsNavBtn" class="icon-btn" title="المحطات"><i class="fas fa-broadcast-tower" style="color:deepskyblue;"></i></button>
+    </div>
+</header>
+
+<aside class="countries-panel">
+    <h3>الدول و أهم المحطات العالمية<span class="country-count"></span></h3>
+<div class="countries-search">
+    <input type="text" id="countriesSearchInput" placeholder="🔍 بحث عن دولة أو تصنيف..." />
+</div>
+    <div id="countriesList"></div>
+</aside>
+
+<section class="content-panel">
+    <div class="tabs-container">
+        <button class="tab-btn active-tab" data-tab="stations-tab"><i class="fas fa-broadcast-tower"></i> المحطات</button>
+        <button class="tab-btn" data-tab="favorites-tab"><i class="fas fa-heart"></i> المفضلة</button>
+        <button class="tab-btn" data-tab="search-tab"><i class="fas fa-search"></i> نتائج البحث</button>
+        <button class="tab-btn" data-tab="add-station-tab"><i class="fas fa-plus-circle"></i> إضافة محطة</button>
+        <button class="tab-btn" data-tab="history-tab"><i class="fas fa-history"></i> السجل</button>
+    </div>
+
+    <div class="tab-content">
+        <!-- تبويب المحطات -->
+        <div id="stations-tab" class="tab-pane active-pane">
+            <!-- تم تعديل ترتيب العناصر هنا: العلم والاسم (يمين)، المؤقت التصاعدي (وسط)، أيقونة التسجيل ومؤقتها (يسار) -->
+            <div class="current-country-info">
+                <div class="country-details">
+                    <img id="selectedCountryFlag" src="./assets/Icons_of_all_countries/jo.png" alt="Flag" class="country-flag-icon">
+                    <i id="selectedCountryIconFallback" class="fas fa-flag" style="display: none;"></i>
+                    <span id="selectedCountryName">الأردن</span>
+                </div>
+                <!-- المؤقت التصاعدي في المنتصف -->
+                <div id="timerUp" class="timer-up">00:00:00</div>
+                <!-- أيقونة التسجيل ومؤقتها على اليسار -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button id="recordIconBtn" class="record-icon-btn" title="تسجيل البث المباشر" style="display: none;"><i class="fas fa-circle"></i></button>
+                    <span id="recordTimer" class="record-timer" style="display: none;">00:00:00</span>
+                </div>
+            </div>
+            <div class="stations-grid" id="stationsContainer">
+                <div class="loading-placeholder">جاري تحميل المحطات...</div>
+            </div>
+        </div>
+
+        <!-- تبويب المفضلة -->
+        <div id="favorites-tab" class="tab-pane">
+            <div class="stations-grid" id="favoritesContainer">
+                <div class="empty-message">✨ لا توجد محطات مفضلة بعد.</div>
+            </div>
+        </div>
+
+        <!-- تبويب نتائج البحث -->
+        <div id="search-tab" class="tab-pane">
+            <div class="search-info">
+                <span>نتائج البحث عن: </span>
+                <span id="searchQueryLabel">---</span>
+            </div>
+            <div class="stations-grid" id="searchResultsContainer">
+                <div class="empty-message">🔍 اكتب كلمة للبحث في جميع المحطات.</div>
+            </div>
+        </div>
+<!-- تبويب إضافة محطة -->
+<div id="add-station-tab" class="tab-pane">
+    <div class="add-station-form">
+        <h3 data-i18n="add_station_title"><i class="fas fa-plus-circle"></i> إضافة محطة إذاعية جديدة</h3>
+        <div class="form-group">
+            <label data-i18n="station_name_label">اسم المحطة:</label>
+            <input type="text" id="newStationName" data-i18n-placeholder="station_name_label" placeholder="مثال: إذاعة القرآن الكريم" class="form-control">
+        </div>
+        <div class="form-group">
+            <label data-i18n="station_url_label">رابط البث (URL):</label>
+            <input type="text" id="newStationUrl" data-i18n-placeholder="station_url_label" placeholder="https://example.com/stream" class="form-control">
+        </div>
+        <div class="form-group">
+            <label data-i18n="country_label">الدولة:</label>
+            <select id="newStationCountry" class="form-control">
+                <option value="XX" data-i18n="worldwide">عالمي</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label data-i18n="genre_label">النوع (اختياري):</label>
+            <input type="text" id="newStationGenre" data-i18n-placeholder="genre_placeholder" placeholder="مثل: ديني, موسيقى" class="form-control">
+        </div>
+        <div class="form-group">
+            <label data-i18n="icon_url_label">رابط الأيقونة (اختياري):</label>
+            <input type="text" id="newStationIcon" data-i18n-placeholder="icon_url_label" placeholder="https://example.com/logo.png" class="form-control">
+        </div>
+        <div class="form-buttons">
+            <button id="submitAddStation" class="btn-primary"><i class="fas fa-save"></i> <span data-i18n="add_button">إضافة</span></button>
+            <button id="cancelAddStation" class="btn-secondary"><i class="fas fa-times"></i> <span data-i18n="cancel_button">إلغاء</span></button>
+        </div>
+    </div>
+</div>
+
+        <!-- تبويب السجل -->
+        <div id="history-tab" class="tab-pane">
+            <div class="history-header">
+                <div class="history-stats">
+                    <span>📋 عدد المحطات: <span id="historyCount">0</span></span>
+                    <button id="clearAllHistoryBtn" class="btn-danger" title="مسح السجل بالكامل"><i class="fas fa-trash-alt"></i> مسح الكل</button>
+                    <button id="exportHistoryBtn" class="btn-primary" title="تصدير السجل"><i class="fas fa-download"></i> تصدير</button>
+                </div>
+                <div class="history-search">
+                    <input type="text" id="historySearchInput" placeholder="🔍 بحث في السجل..." class="form-control">
+                </div>
+            </div>
+            <div class="stations-grid" id="historyContainer">
+                <div class="empty-message">📋 لا توجد محطات في السجل بعد.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="player-bar">
+    <div class="station-icon-container">
+        <img id="stationIcon" src="./assets/666.png" alt="Station Icon">
+    <button id="changeIconBtn" class="change-icon-btn" title="تغيير الأيقونة">⋮</button>
+    </div>
+    <div class="player-controls">
+        <button id="playPauseBtn" class="player-btn"><i class="fas fa-play"></i></button>
+        <button id="stopBtn" class="player-btn"><i class="fas fa-stop"></i></button>
+        <div class="volume-control">
+            <i class="fas fa-volume-up"></i>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
+        </div>
+    </div>
+    <div class="station-info">
+        <h2 id="currentStationName">لم يتم اختيار محطة</h2>
+        <div id="currentStationCountry" class="station-country"></div>
+    </div>
+    <div class="fav-action">
+        <button id="favCurrentBtn" class="fav-btn"><i class="far fa-heart"></i> حفظ</button>
+    </div>
+    <div class="audio-visualizer-wrapper">
+        <canvas id="audioVisualizerCanvas"></canvas>
+    </div>
+</div>
+
+<iframe id="radioWebview" style="display:none; width:100%; height:0;"></iframe>
+
+<script>
+    // لا يتم إضافة أي كود JS هنا، سيتم التعامل مع الإعدادات في app.js
+    setTimeout(function() {
+        var panel = document.querySelector('.content-panel');
+        if (panel) {
+            panel.style.marginTop = '150px';
+            panel.style.transition = 'margin-top 0.2s ease';
+        }
+    }, 500);
+</script>
+<script src="stations_fallback.js"></script>
+<script src="hls.min.js"></script>
+<script src="globals.js"></script>
+<script src="i18n.js"></script>
+<script src="stationsData.js"></script>
+<script src="audioCore.js"></script>
+<script src="playerControls.js"></script>
+<script src="history.js"></script>
+<script src="favorites.js"></script>
+<script src="search.js"></script>
+<script src="uiRendering.js"></script>
+<script src="settings.js"></script>
+<script src="keyboardShortcuts.js"></script>
+<script src="compactMode.js"></script>
+<script src="menuBar.js"></script>
+<script src="appInit.js"></script>
+<!-- 
+    تطبيق Arabic Radio
+    أنشأه: سعيد بدر
+    حقوق النشر © 2026 سعيد بدر
+    هذا التطبيق مرخص بموجب رخصة MIT
+-->
+</body>
+</html>
