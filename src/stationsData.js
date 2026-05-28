@@ -383,32 +383,50 @@ function changeStationIcon(stationId) {
 }
 window.exportStations = exportStations;
 // ========== إصلاح رابط المحطة التالف ==========
-// ========== إصلاح رابط المحطة التالف ==========
 async function findNewStreamUrlForStation(stationName) {
+    console.log("findNewStreamUrlForStation called for:", stationName);
     try {
-        const servers = ["de1", "nl1", "fr1"];
-        const randomServer = servers[Math.floor(Math.random() * servers.length)];
-        const url = `https://${randomServer}.api.radio-browser.info/json/stations/byname?name=${encodeURIComponent(stationName)}&hidebroken=true&limit=5`;
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const stations = await response.json();
-        
-        if (stations && stations.length > 0) {
-            let bestMatch = stations.find(s => s.name.toLowerCase() === stationName.toLowerCase());
-            if (!bestMatch) bestMatch = stations[0];
-            let newUrl = bestMatch.urlResolved || bestMatch.url;
-            if (newUrl && newUrl.startsWith('http')) {
-                return newUrl;
+        // قائمة الخوادم: all أولاً ثم خوادم محددة كاحتياط
+        const servers = ["all", "de1", "fr1", "uk1", "nl1"];
+        for (const server of servers) {
+            try {
+                const url = `https://${server}.api.radio-browser.info/json/stations/byname?name=${encodeURIComponent(stationName)}&hidebroken=true&limit=5`;
+                console.log("Fetching from:", url);
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 8000); // مهلة 8 ثوان
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (!response.ok) {
+                    console.warn(`HTTP ${response.status} from ${server}`);
+                    continue;
+                }
+                const stations = await response.json();
+                if (stations && stations.length > 0) {
+                    // البحث عن تطابق تام في الاسم
+                    let bestMatch = stations.find(s => s.name.toLowerCase() === stationName.toLowerCase());
+                    if (!bestMatch) bestMatch = stations[0];
+                    let newUrl = bestMatch.urlResolved || bestMatch.url;
+                    if (newUrl && newUrl.startsWith('http')) {
+                        console.log("Found new URL:", newUrl);
+                        return newUrl;
+                    }
+                }
+            } catch (e) {
+                console.warn(`Failed to fetch from ${server}:`, e.message);
+                // الاستمرار إلى الخادم التالي
             }
         }
+        console.log("No working URL found");
         return null;
     } catch (error) {
-        console.error("❌ فشل البحث عن رابط جديد:", error);
+        console.error("findNewStreamUrlForStation error:", error);
         return null;
     }
 }
 
+// ========== إصلاح رابط المحطة التالف ==========
 async function repairStationStream(stationId) {
+    console.log("repairStationStream called for stationId:", stationId);
     const station = masterStations.find(s => s.id === stationId);
     if (!station) {
         if (typeof setStatus === 'function') setStatus(t('station_not_found'), true);
@@ -417,68 +435,38 @@ async function repairStationStream(stationId) {
     
     if (typeof setStatus === 'function') setStatus(currentLanguage === 'ar' ? '🔍 جاري البحث عن رابط جديد...' : '🔍 Searching for new stream URL...', false);
     
-    const newUrl = await findNewStreamUrlForStation(station.name);
-    if (newUrl && newUrl !== station.streamUrl) {
-        station.streamUrl = newUrl;
-        if (typeof saveMasterStations === 'function') saveMasterStations();
-        if (typeof setStatus === 'function') setStatus(currentLanguage === 'ar' ? '✅ تم تحديث رابط المحطة بنجاح' : '✅ Station URL updated successfully', false);
-        
-        if (currentStation && currentStation.id === stationId) {
-            currentStation.url = newUrl;
-            localStorage.setItem('arabicRadioCurrentStation', JSON.stringify(currentStation));
-            if (!audioPlayer.paused && typeof playStation === 'function') {
-                playStation(newUrl, station.name, currentStation.country, station.id, station.isWebPage || false);
+    try {
+        const newUrl = await findNewStreamUrlForStation(station.name);
+        console.log("newUrl returned:", newUrl);
+        if (newUrl && newUrl !== station.streamUrl) {
+            station.streamUrl = newUrl;
+            if (typeof saveMasterStations === 'function') saveMasterStations();
+            if (typeof setStatus === 'function') setStatus(currentLanguage === 'ar' ? '✅ تم تحديث رابط المحطة بنجاح' : '✅ Station URL updated successfully', false);
+            
+            if (currentStation && currentStation.id === stationId) {
+                currentStation.url = newUrl;
+                localStorage.setItem('arabicRadioCurrentStation', JSON.stringify(currentStation));
+                if (!audioPlayer.paused && typeof playStation === 'function') {
+                    playStation(newUrl, station.name, currentStation.country, station.id, station.isWebPage || false);
+                }
             }
+            if (typeof renderStations === 'function') renderStations();
+            if (typeof renderFavoritesTab === 'function') renderFavoritesTab();
+            return newUrl;
+        } else if (newUrl === station.streamUrl) {
+            if (typeof setStatus === 'function') setStatus(currentLanguage === 'ar' ? 'ℹ️ الرابط الحالي لا يزال يعمل' : 'ℹ️ Current URL is still working', false);
+            return null;
+        } else {
+            if (typeof setStatus === 'function') setStatus(currentLanguage === 'ar' ? '❌ لم يتم العثور على رابط بديل يعمل' : '❌ No working alternative URL found', true);
+            return null;
         }
-        if (typeof renderStations === 'function') renderStations();
-        if (typeof renderFavoritesTab === 'function') renderFavoritesTab();
-        return newUrl;
-    } else if (newUrl === station.streamUrl) {
-        if (typeof setStatus === 'function') setStatus(currentLanguage === 'ar' ? 'ℹ️ الرابط الحالي لا يزال يعمل' : 'ℹ️ Current URL is still working', false);
-        return null;
-    } else {
-        if (typeof setStatus === 'function') setStatus(currentLanguage === 'ar' ? '❌ لم يتم العثور على رابط بديل يعمل' : '❌ No working alternative URL found', true);
+    } catch (error) {
+        console.error("repairStationStream error:", error);
+        if (typeof setStatus === 'function') setStatus(currentLanguage === 'ar' ? '❌ فشل البحث عن رابط بديل' : '❌ Failed to find alternative URL', true);
         return null;
     }
 }
 
-// تصدير الدالة للاستخدام العام
+// تصدير الدوال للنطاق العام
 window.repairStationStream = repairStationStream;
-
-async function repairStationStream(stationId) {
-    const station = masterStations.find(s => s.id === stationId);
-    if (!station) {
-        setStatus(t('station_not_found'), true);
-        return null;
-    }
-    
-    setStatus(currentLanguage === 'ar' ? '🔧 جاري البحث عن رابط جديد...' : '🔧 Searching for new stream URL...', false);
-    
-    const newUrl = await findNewStreamUrlForStation(station.name);
-    if (newUrl && newUrl !== station.streamUrl) {
-        // تحديث الرابط في المحطة
-        station.streamUrl = newUrl;
-        saveMasterStations();
-        setStatus(currentLanguage === 'ar' ? '✅ تم تحديث رابط المحطة بنجاح' : '✅ Station URL updated successfully', false);
-        
-        // إذا كانت هذه المحطة هي الحالية، نقوم بتحديث currentStation أيضاً
-        if (currentStation && currentStation.id === stationId) {
-            currentStation.url = newUrl;
-            localStorage.setItem('arabicRadioCurrentStation', JSON.stringify(currentStation));
-            // إذا كانت المحطة قيد التشغيل حالياً، نعيد تشغيلها بالرابط الجديد
-            if (!audioPlayer.paused) {
-                playStation(newUrl, station.name, currentStation.country, station.id, station.isWebPage || false);
-            }
-        }
-        return newUrl;
-    } else if (newUrl === station.streamUrl) {
-        setStatus(currentLanguage === 'ar' ? 'ℹ️ الرابط الحالي لا يزال يعمل' : 'ℹ️ Current URL is still working', false);
-        return null;
-    } else {
-        setStatus(currentLanguage === 'ar' ? '❌ لم يتم العثور على رابط بديل يعمل' : '❌ No working alternative URL found', true);
-        return null;
-    }
-}
-
-// تصدير الدالة للاستخدام في الملفات الأخرى
-window.repairStationStream = repairStationStream;
+window.findNewStreamUrlForStation = findNewStreamUrlForStation; // اختياري

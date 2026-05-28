@@ -56,15 +56,15 @@ async function setCompactMode(enable) {
         
         // تغيير حجم النافذة
         if (window.electronAPI?.setWindowSize) {
-            console.log('Attempting to set window size to 900x190');
-            await window.electronAPI.setWindowSize(900, 190);
+            console.log('Attempting to set window size to 950x190');
+            await window.electronAPI.setWindowSize(950, 190);
             // التحقق من الحجم بعد التغيير
             if (window.electronAPI?.getCurrentWindowSize) {
                 const newSize = await window.electronAPI.getCurrentWindowSize();
                 console.log('New window size after setWindowSize:', newSize);
             }
         } else {
-            window.resizeTo(900, 190);
+            window.resizeTo(950, 190);
         }
         addFloatingRestoreButton();
     } else {

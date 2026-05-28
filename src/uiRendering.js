@@ -216,23 +216,40 @@ function switchTab(tabId) {
         resetAddStationForm();
     }
 }
-
 function updateCurrentStationFromCard(cardElement) {
     const stationId = cardElement.dataset.id;
     if (!stationId) return false;
     const station = masterStations.find(s => s.id === stationId);
     if (!station) return false;
+    
+    // حفظ countryCode واسم باللغة الحالية مؤقتاً
     const countryObj = allCountries.find(c => c.code === station.countryCode);
-    const countryName = countryObj ? countryObj.nameAr : station.countryCode;
-    currentStation = { id: station.id, name: station.name, country: countryName, url: station.streamUrl, isWebPage: station.isWebPage || false };
+    const countryNameForNow = countryObj ? (currentLanguage === 'en' ? countryObj.name : countryObj.nameAr) : station.countryCode;
+    
+    currentStation = { 
+        id: station.id, 
+        name: station.name, 
+        country: countryNameForNow, 
+        url: station.streamUrl, 
+        isWebPage: station.isWebPage || false,
+        countryCode: station.countryCode  // مهم: حفظ كود الدولة
+    };
     localStorage.setItem('arabicRadioCurrentStation', JSON.stringify(currentStation));
+    
     const currentStationNameEl = document.getElementById("currentStationName");
     if (currentStationNameEl) currentStationNameEl.innerText = currentStation.name;
-    const currentStationCountryEl = document.getElementById("currentStationCountry");
-    if (currentStationCountryEl) currentStationCountryEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${currentStation.country}`;
+    
+    // استخدام الدالة المركزية لتحديث اسم الدولة (ستعتمد على countryCode واللغة الحالية)
+    if (typeof updateCurrentStationCountry === 'function') {
+        updateCurrentStationCountry();
+    } else {
+        const currentStationCountryEl = document.getElementById("currentStationCountry");
+        if (currentStationCountryEl) currentStationCountryEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${currentStation.country}`;
+    }
+    
     updateFavButtonCurrent();
     updateStationIcon(currentStation.id);
-    setStatus(`تم اختيار ${station.name}`, false);
+    setStatus(`${t('selected')} ${station.name}`, false);
     return true;
 }
 

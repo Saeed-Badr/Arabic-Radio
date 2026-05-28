@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const savedLanguage = localStorage.getItem('setting_language') || 'en';
     currentLanguage = savedLanguage;
     document.documentElement.lang = currentLanguage === 'ar' ? 'ar' : 'en';
-    // تحديد الاتجاه حسب اللغة
     if (currentLanguage === 'ar') {
         document.documentElement.setAttribute('dir', 'rtl');
         document.body.style.direction = 'rtl';
@@ -71,12 +70,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const playPauseBtn = document.getElementById("playPauseBtn");
     if (playPauseBtn) {
         playPauseBtn.addEventListener("click", () => {
-            if (audioPlayer.paused) { if (currentStation && currentStation.url) playStation(currentStation.url, currentStation.name, currentStation.country, currentStation.id, currentStation.isWebPage || false); else setStatus(t('no_station_selected'), true); }
-            else { audioPlayer.pause(); playPauseBtn.innerHTML = '<i class="fas fa-play"></i>'; updateStationPlayButtons(currentStation ? currentStation.id : null, false); }
+            if (!audioPlayer.paused && currentStation) {
+                // في حالة التشغيل، نقوم بالإيقاف
+                stopPlayback();
+            } else {
+                if (currentStation && currentStation.url) {
+                    playStation(currentStation.url, currentStation.name, currentStation.country, currentStation.id, currentStation.isWebPage || false);
+                } else {
+                    setStatus(t('no_station_selected'), true);
+                }
+            }
         });
     }
-    const stopBtn = document.getElementById("stopBtn");
-    if (stopBtn) stopBtn.addEventListener("click", () => { stopPlayback(); setStatus('', false); updateStationIcon(null); });
+    
+    // تهيئة زر "المحطة التالية" (الذي كان stopBtn)
+    if (typeof initNextStationButton === 'function') {
+        initNextStationButton();
+    }
     
     const volumeSlider = document.getElementById("volumeSlider");
     if (volumeSlider) {
@@ -141,11 +151,10 @@ if (window.electronAPI) {
             ? 'تم تحميل التحديث. هل تريد تثبيته الآن؟ (سيتم إعادة تشغيل التطبيق)'
             : 'Update downloaded. Restart now to install?');
         if (userConfirmed && window.electronAPI.quitAndInstall) {
-            window.electronAPI.quitAndInstall();  // ✅ استخدم quitAndInstall بدلاً من closeApp
+            window.electronAPI.quitAndInstall();
         }
     });
     
-    // ========== إضافة هذين الحدثين ==========
     window.electronAPI.onUpdateNotAvailable(() => {
         setStatus(currentLanguage === 'ar' ? '✅ لا توجد تحديثات متاحة. أنت تستخدم أحدث إصدار.' : '✅ No updates available. You are using the latest version.', false);
     });
@@ -348,29 +357,34 @@ function restoreLastStationWithoutPlaying() {
             const stillExists = masterStations.some(st => st.id === savedStation.id);
             if (stillExists && savedStation.url) {
                 currentStation = savedStation;
-// إذا لم يكن countryCode موجوداً، حاول استخراجه من masterStations
-if (!currentStation.countryCode && currentStation.id) {
-    const stationObj = masterStations.find(s => s.id === currentStation.id);
-    if (stationObj && stationObj.countryCode) {
-        currentStation.countryCode = stationObj.countryCode;
-        // تحديث localStorage بالقيمة الجديدة
-        localStorage.setItem('arabicRadioCurrentStation', JSON.stringify(currentStation));
-    }
-}
-// عرض اسم الدولة مترجماً حسب اللغة الحالية
-const currentStationNameEl = document.getElementById("currentStationName");
-if (currentStationNameEl) currentStationNameEl.innerText = currentStation.name;
-const currentStationCountryEl = document.getElementById("currentStationCountry");
-if (currentStationCountryEl) {
-    let countryDisplay = currentStation.country;
-    if (currentStation.countryCode) {
-        const countryObj = allCountries.find(c => c.code === currentStation.countryCode);
-        if (countryObj) {
-            countryDisplay = currentLanguage === 'en' ? countryObj.name : countryObj.nameAr;
-        }
-    }
-    currentStationCountryEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${countryDisplay}`;
-}
+                if (!currentStation.countryCode && currentStation.id) {
+                    const stationObj = masterStations.find(s => s.id === currentStation.id);
+                    if (stationObj && stationObj.countryCode) {
+                        currentStation.countryCode = stationObj.countryCode;
+                        localStorage.setItem('arabicRadioCurrentStation', JSON.stringify(currentStation));
+                    }
+                }
+                const currentStationNameEl = document.getElementById("currentStationName");
+                if (currentStationNameEl) currentStationNameEl.innerText = currentStation.name;
+                
+                // استخدام الدالة المركزية لتحديث اسم الدولة
+                if (typeof updateCurrentStationCountry === 'function') {
+                    updateCurrentStationCountry();
+                } else {
+                    // كود احتياطي في حال عدم وجود الدالة
+                    const currentStationCountryEl = document.getElementById("currentStationCountry");
+                    if (currentStationCountryEl) {
+                        let countryDisplay = currentStation.country;
+                        if (currentStation.countryCode) {
+                            const countryObj = allCountries.find(c => c.code === currentStation.countryCode);
+                            if (countryObj) {
+                                countryDisplay = currentLanguage === 'en' ? countryObj.name : countryObj.nameAr;
+                            }
+                        }
+                        currentStationCountryEl.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${countryDisplay}`;
+                    }
+                }
+                
                 updateFavButtonCurrent();
                 if (currentStation.id) updateStationIcon(currentStation.id);
                 const playPauseBtn = document.getElementById("playPauseBtn");
@@ -393,7 +407,6 @@ if (currentStationCountryEl) {
     updateHeaderForFilter(currentFilterItem);
     renderStations();
 }
-
 // ربط بعض الوظائف للنوافذ
 window.renderStations = renderStations;
 window.renderFavoritesTab = renderFavoritesTab;

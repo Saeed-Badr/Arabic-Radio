@@ -7,15 +7,13 @@ function initKeyboardShortcuts() {
         const shift = e.shiftKey;
         const alt = e.altKey;
         const code = e.code;
-        let key = e.key.toLowerCase(); // للاستثناءات النادرة (مثل ?)
+        let key = e.key.toLowerCase();
 
-        // تجاهل مفاتيح التعديل فقط
         if (key === 'control' || key === 'shift' || key === 'alt' || key === 'meta') return;
 
-        // قائمة الرموز التي نريد منع السلوك الافتراضي لها (حسب code)
         const handledCodes = [
             'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5',
-               'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4',
+            'Numpad1', 'Numpad2', 'Numpad3', 'Numpad4',
             'KeyP', 'Space', 'KeyS',
             'ArrowUp', 'ArrowDown', 'ArrowRight', 'ArrowLeft',
             'KeyE', 'KeyF', 'KeyJ', 'KeyO', 'KeyN', 'KeyI', 'KeyQ', 'KeyW',
@@ -50,24 +48,20 @@ function initKeyboardShortcuts() {
                 case 'Digit2': startTimer(40); setStatus(t('timer_set',40),false); break;
                 case 'Digit3': startTimer(60); setStatus(t('timer_set',60),false); break;
                 case 'Digit4': startTimer(80); setStatus(t('timer_set',80),false); break;
-                                case 'Numpad1': startTimer(20); setStatus(t('timer_set',20),false); break;
+                case 'Numpad1': startTimer(20); setStatus(t('timer_set',20),false); break;
                 case 'Numpad2': startTimer(40); setStatus(t('timer_set',40),false); break;
                 case 'Numpad3': startTimer(60); setStatus(t('timer_set',60),false); break;
                 case 'Numpad4': startTimer(80); setStatus(t('timer_set',80),false); break;
                 case 'KeyZ': shuffleRandomStation(); break;
                 case 'KeyT': toggleAlwaysOnTop(); break;
-                                case 'KeyU':
+                case 'KeyU':
                     if (window.electronAPI && window.electronAPI.checkForUpdates) {
                         window.electronAPI.checkForUpdates();
                         setStatus(t('checking_for_updates'), false);
                     } else {
-                        // نحاول تحديد ما إذا كنا في النسخة المثبتة أم لا
                         const isPackaged = window.electronAPI && window.electronAPI.isPackaged ? window.electronAPI.isPackaged : false;
-                        if (!isPackaged) {
-                            setStatus(t('updates_only_in_production'), true);
-                        } else {
-                            setStatus(t('updates_not_supported'), true);
-                        }
+                        if (!isPackaged) setStatus(t('updates_only_in_production'), true);
+                        else setStatus(t('updates_not_supported'), true);
                     }
                     break;
                 case 'KeyX': exportStations(); break;
@@ -114,7 +108,7 @@ function initKeyboardShortcuts() {
                 case 'Digit3': switchTab('search-tab'); break;
                 case 'Digit4': switchTab('add-station-tab'); break;
                 case 'Digit5': switchTab('history-tab'); break;
-                                case 'Numpad1': switchTab('stations-tab'); break;
+                case 'Numpad1': switchTab('stations-tab'); break;
                 case 'Numpad2': switchTab('favorites-tab'); break;
                 case 'Numpad3': switchTab('search-tab'); break;
                 case 'Numpad4': switchTab('add-station-tab'); break;
@@ -126,10 +120,15 @@ function initKeyboardShortcuts() {
                         else setStatus(t('no_station_selected'), true);
                     } else {
                         audioPlayer.pause();
+                        updatePlayPauseButton(false);
                         if (currentStation) updateStationPlayButtons(currentStation.id, false);
                     }
                     break;
-                case 'KeyS': stopPlayback(); setStatus(t('menu_stop_now'),false); break;
+                case 'KeyS':
+                    // Ctrl+S -> تشغيل المحطة التالية
+                    if (typeof playNextStation === 'function') playNextStation();
+                    else setStatus(t('no_stations'), true);
+                    break;
                 case 'ArrowUp':
                 case 'ArrowRight':
                     let vUp = Math.min(1, audioPlayer.volume + 0.05);
@@ -151,7 +150,7 @@ function initKeyboardShortcuts() {
                 case 'KeyR': shuffleRandomStation(); break;
                 case 'KeyF': document.getElementById('searchInput')?.focus(); setStatus('🔎 '+(currentLanguage==='ar'?'ابحث':'Search'),false); break;
                 case 'KeyJ': toggleCompressor(); break;
-                                case 'KeyO':
+                case 'KeyO':
                     window.customPrompt(currentLanguage === 'ar' ? 'أدخل رابط البث المباشر (URL):' : 'Enter stream URL:').then(url => {
                         if (url?.trim()) playStation(url.trim(), currentLanguage === 'ar' ? 'رابط مخصص' : 'Custom URL', currentLanguage === 'ar' ? 'رابط خارجي' : 'External Link', 'custom_' + Date.now(), false);
                     });
@@ -210,7 +209,11 @@ function initKeyboardShortcuts() {
                         playStation(currentStation.url, currentStation.name, currentStation.country, currentStation.id, currentStation.isWebPage || false);
                     else if (!audioPlayer.paused) audioPlayer.play();
                     break;
-                case 'KeyS': stopPlayback(); setStatus(t('menu_stop_now'),false); break;
+                case 'KeyS':
+                    // Shift+S -> تشغيل المحطة التالية
+                    if (typeof playNextStation === 'function') playNextStation();
+                    else setStatus(t('no_stations'), true);
+                    break;
                 case 'ArrowUp':
                     let vUp = Math.min(1, audioPlayer.volume + 0.05);
                     audioPlayer.volume = vUp;
@@ -230,7 +233,7 @@ function initKeyboardShortcuts() {
                 case 'KeyR': shuffleRandomStation(); break;
                 case 'KeyF': document.getElementById('searchInput')?.focus(); break;
                 case 'KeyJ': toggleCompressor(); break;
-                                case 'KeyO':
+                case 'KeyO':
                     window.customPrompt(currentLanguage === 'ar' ? 'أدخل رابط البث المباشر (URL):' : 'Enter stream URL:').then(url => {
                         if (url?.trim()) playStation(url.trim(), currentLanguage === 'ar' ? 'رابط مخصص' : 'Custom URL', currentLanguage === 'ar' ? 'رابط خارجي' : 'External Link', 'custom_' + Date.now(), false);
                     });
@@ -256,7 +259,7 @@ function initKeyboardShortcuts() {
     });
 }
 
-// ========== نافذة عرض جميع الاختصارات (محدثة) – تمت إضافة Ctrl+Shift+I ==========
+// ========== نافذة عرض جميع الاختصارات ==========
 function showKeyboardShortcutsModal() {
     let modal = document.getElementById('shortcutsModal');
     if (!modal) {
@@ -270,7 +273,7 @@ function showKeyboardShortcutsModal() {
                     <div class="shortcut-category">
                         <h3>🎛️ ${currentLanguage === 'ar' ? 'عام' : 'General'}</h3>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'تشغيل/إيقاف مؤقت' : 'Play/Pause'}</span><span class="shortcut-key">Ctrl+P / Space / Shift+P</span></div>
-                        <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'إيقاف البث' : 'Stop'}</span><span class="shortcut-key">Ctrl+S / Shift+S</span></div>
+                        <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'المحطة التالية' : 'Next Station'}</span><span class="shortcut-key">Ctrl+S / Shift+S</span></div>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'رفع الصوت' : 'Volume Up'}</span><span class="shortcut-key">Ctrl+↑ / Ctrl+→ / Shift+↑</span></div>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'خفض الصوت' : 'Volume Down'}</span><span class="shortcut-key">Ctrl+↓ / Ctrl+← / Shift+↓</span></div>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'تشغيل عشوائي' : 'Shuffle'}</span><span class="shortcut-key">Ctrl+R / Shift+R</span></div>
@@ -339,7 +342,7 @@ function showKeyboardShortcutsModal() {
                         <h3>❔ ${currentLanguage === 'ar' ? 'مساعدة' : 'Help'}</h3>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'عرض الاختصارات' : 'Show Shortcuts'}</span><span class="shortcut-key">Ctrl+Shift+K</span></div>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'معلومات التصحيح' : 'Debug Info'}</span><span class="shortcut-key">Ctrl+Shift+?</span></div>
-<div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'البحث عن تحديثات' : 'Check for Updates'}</span><span class="shortcut-key">Ctrl+Shift+U</span></div>
+                        <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'البحث عن تحديثات' : 'Check for Updates'}</span><span class="shortcut-key">Ctrl+Shift+U</span></div>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'إرسال ملاحظات' : 'Send Feedback'}</span><span class="shortcut-key">Ctrl+Shift+F</span></div>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'مفتوح المصدر' : 'Open Source'}</span><span class="shortcut-key">Ctrl+Shift+G</span></div>
                         <div class="shortcut-item"><span>${currentLanguage === 'ar' ? 'ملاحظات الإصدار' : 'Release Notes'}</span><span class="shortcut-key">Ctrl+Shift+N</span></div>
@@ -365,14 +368,11 @@ function showKeyboardShortcutsModal() {
 
 window.showKeyboardShortcutsModal = showKeyboardShortcutsModal;
 
-// دالة التبديل الآمنة (مع التحقق من وجود API)
 function toggleAlwaysOnTop() {
     if (!window.electronAPI) {
         setStatus(currentLanguage === 'ar' ? '⚠️ هذه الميزة تعمل فقط في تطبيق سطح المكتب' : '⚠️ This feature only works in desktop app', true);
         return;
     }
-    
-    // استخدام دالة getAlwaysOnTop إذا كانت موجودة، وإلا نستخدم طريقة مباشرة
     if (window.electronAPI.getAlwaysOnTop) {
         window.electronAPI.getAlwaysOnTop().then(isOnTop => {
             const newState = !isOnTop;
@@ -383,12 +383,10 @@ function toggleAlwaysOnTop() {
                 (newState ? '✅ Always on Top enabled' : '✅ Always on Top disabled'), false);
         }).catch(err => {
             console.error('Error getting always on top state:', err);
-            // Fallback: تفعيل فقط
             window.electronAPI.setAlwaysOnTop(true);
             updateAlwaysOnTopMenuState(true);
         });
     } else {
-        // للإصدارات القديمة
         window.electronAPI.setAlwaysOnTop(true);
         updateAlwaysOnTopMenuState(true);
         setStatus(t('always_on_top_set'), false);
@@ -413,7 +411,6 @@ function updateAlwaysOnTopMenuState(isActive) {
     }
 }
 
-// استقبال الاختصارات المسجلة عالمياً من main.js
 if (window.electronAPI && window.electronAPI.onShortcutTriggered) {
   window.electronAPI.onShortcutTriggered((shortcut, minutes) => {
     console.log('Shortcut from main:', shortcut, minutes);
@@ -422,11 +419,9 @@ if (window.electronAPI && window.electronAPI.onShortcutTriggered) {
         if (url?.trim()) playStation(url.trim(), currentLanguage === 'ar' ? 'رابط مخصص' : 'Custom URL', currentLanguage === 'ar' ? 'رابط خارجي' : 'External Link', 'custom_' + Date.now(), false);
       });
     } else if (shortcut.startsWith('ctrl+shift+numpad')) {
-      // دالة التايمر
       if (minutes) startTimer(minutes);
       setStatus(t('timer_set', minutes), false);
     } else if (shortcut.startsWith('ctrl+numpad')) {
-      // التبديل بين التبويبات
       const num = shortcut.slice(-1);
       switch (num) {
         case '1': switchTab('stations-tab'); break;
@@ -440,28 +435,12 @@ if (window.electronAPI && window.electronAPI.onShortcutTriggered) {
   });
 }
 
-// دعم اختصارات Ctrl+Numpad1..5 للتبويبات (داخل initKeyboardShortcuts أو بشكل منفصل)
-//document.addEventListener('keydown', (e) => {
-//  if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-//    const code = e.code;
-//    switch (code) {
-//      case 'Numpad1': switchTab('stations-tab'); e.preventDefault(); break;
-//      case 'Numpad2': switchTab('favorites-tab'); e.preventDefault(); break;
-//      case 'Numpad3': switchTab('search-tab'); e.preventDefault(); break;
-//      case 'Numpad4': switchTab('add-station-tab'); e.preventDefault(); break;
-//      case 'Numpad5': switchTab('history-tab'); e.preventDefault(); break;
-//      default: break;
-//    }
-//  }
-//});
-
-// دالة آمنة لتهيئة الاختصارات مع تأخير مناسب
 function safeInitKeyboardShortcuts() {
-    // التحقق من وجود الدوال الأساسية فقط (بدون الاعتماد على toggleAlwaysOnTop)
     if (typeof startTimer !== 'undefined' && 
         typeof applyAdvancedSetting !== 'undefined' && 
         typeof updateSettingCheckmarks !== 'undefined' &&
-        typeof applyTheme !== 'undefined') {
+        typeof applyTheme !== 'undefined' &&
+        typeof playNextStation !== 'undefined') {
         initKeyboardShortcuts();
         console.log('✅ Keyboard shortcuts initialized successfully');
     } else {

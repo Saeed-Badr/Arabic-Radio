@@ -65,10 +65,18 @@ window.fallbackStations = [
     "icon": ""
   },
   {
-    "id": "st_mazaj_fm",
-    "name": "Mazaj FM 95.3",
+    "id": "jo_radio_dahab",
+    "name": "Radio Dahab 94.1 FM",
     "countryCode": "JO",
-    "streamUrl": "https://mazajfm.ice.infomaniak.ch/mazajfm-192.mp3",
+    "streamUrl": "https://dahab.ice.infomaniak.ch/dahab-192.mp3",
+    "genre": "موسيقى",
+    "icon": ""
+  },
+  {
+    "id": "jo_beat_fm",
+    "name": "Beat FM 102.5",
+    "countryCode": "JO",
+    "streamUrl": "https://securestreams2.autopo.st:1242/live",
     "genre": "موسيقى",
     "icon": ""
   },
@@ -76,16 +84,8 @@ window.fallbackStations = [
     "id": "st_radio_hala",
     "name": "Radio Hala 102.1 FM",
     "countryCode": "JO",
-    "streamUrl": "https://hala-alrayamedia.radioca.st/",
+    "streamUrl": "http://live.hala.jo:8000/stream/",
     "genre": "عامة",
-    "icon": ""
-  },
-  {
-    "id": "st_beat_fm",
-    "name": "Beat FM 102.5",
-    "countryCode": "JO",
-    "streamUrl": "https://securestreams2.autopo.st:1242/live",
-    "genre": "موسيقى",
     "icon": ""
   },
   {
@@ -94,22 +94,6 @@ window.fallbackStations = [
     "countryCode": "JO",
     "streamUrl": "https://jrtv-live.ercdn.net/jrradio/jordanradiovideo.m3u8",
     "genre": "أخبار",
-    "icon": ""
-  },
-  {
-    "id": "st_radio_dahab",
-    "name": "Radio Dahab 94.1 FM",
-    "countryCode": "JO",
-    "streamUrl": "https://dahab.ice.infomaniak.ch/dahab-192.mp3",
-    "genre": "موسيقى",
-    "icon": ""
-  },
-  {
-    "id": "st_bliss_fm",
-    "name": "Bliss 104.3",
-    "countryCode": "JO",
-    "streamUrl": "https://bliss1-alrayamedia.radioca.st/",
-    "genre": "موسيقى",
     "icon": ""
   },
   {
@@ -206,6 +190,22 @@ window.fallbackStations = [
     "countryCode": "JO",
     "streamUrl": "http://jufmstreaming.ju.edu.jo/",
     "genre": "جامعية",
+    "icon": ""
+  },
+  {
+    "id": "jo_mazaj_fm",
+    "name": "Mazaj FM 95.3",
+    "countryCode": "JO",
+    "streamUrl": "https://mazajfm.ice.infomaniak.ch/mazajfm-192.mp3",
+    "genre": "موسيقى",
+    "icon": ""
+  },
+  {
+    "id": "jo_bliss_fm",
+    "name": "Bliss 104.3",
+    "countryCode": "JO",
+    "streamUrl": "https://bliss1-alrayamedia.radioca.st/",
+    "genre": "موسيقى",
     "icon": ""
   },
   {
